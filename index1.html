@@ -134,7 +134,7 @@
         padding: 60px 20px;
         opacity: 0;
         transition: opacity 1.5s ease-in-out;
-        overflow-y: auto;
+        overflow: hidden;
         overflow-x: hidden;
         scroll-behavior: smooth;
       }
@@ -387,6 +387,11 @@
           desc: "On the days you feel low.",
         },
         {
+          emoji: "😏",
+          title: "Teasing Kiss",
+          desc: "When you're being stubborn.",
+        },
+        {
           emoji: "🌅",
           title: "Morning Kiss",
           desc: "Before the day even starts.",
@@ -403,12 +408,18 @@
           title: "Shy Kiss",
           desc: "Because you looked at me like that.",
         },
+        {
+          emoji: "🫀",
+          title: "Heartbeat Kiss",
+          desc: "Close. Slow. Meaningful.",
+        },
         { emoji: "💌", title: "Promise Kiss", desc: "For choosing us." },
         {
           emoji: "🌸",
           title: "Random Kiss",
           desc: "For absolutely no reason.",
         },
+        { emoji: "💞", title: "Forever Kiss", desc: "The kind that lingers." },
         {
           emoji: "🌟",
           title: "Grateful Kiss",
@@ -435,7 +446,17 @@
           title: "Midnight Kiss",
           desc: "Under the stars we never see.",
         },
+        {
+          emoji: "🍃",
+          title: "Gentle Kiss",
+          desc: "Like a whisper on your skin.",
+        },
         { emoji: "🌊", title: "Deep Kiss", desc: "When I lose myself in you." },
+        {
+          emoji: "🦋",
+          title: "Butterfly Kiss",
+          desc: "Light. Fleeting. Perfect.",
+        },
         { emoji: "☁️", title: "Cloud Kiss", desc: "Soft and endless." },
         { emoji: "✨", title: "Magic Kiss", desc: "That changes everything." },
         { emoji: "🎀", title: "Sweet Kiss", desc: "Just because I want to." },
@@ -445,6 +466,7 @@
           title: "Stolen Kiss",
           desc: "When I can't help myself.",
         },
+        { emoji: "🕊", title: "Peace Kiss", desc: "After we make up." },
         {
           emoji: "🎨",
           title: "Creative Kiss",
@@ -452,7 +474,10 @@
         },
         { emoji: "🌈", title: "Happy Kiss", desc: "When you smile like that." },
         { emoji: "🔮", title: "Future Kiss", desc: "For all the tomorrows." },
+        { emoji: "💝", title: "Gift Kiss", desc: "Wrapped in affection." },
+        { emoji: "🌻", title: "Sunshine Kiss", desc: "Bright and warm." },
         { emoji: "🎭", title: "Playful Kiss", desc: "When we're being silly." },
+        { emoji: "📖", title: "Story Kiss", desc: "Every chapter needs one." },
         { emoji: "🎯", title: "Intentional Kiss", desc: "Meant for only you." },
         { emoji: "🏠", title: "Home Kiss", desc: "Because you're my place." },
         {
@@ -502,34 +527,41 @@
       const kissContainer = document.getElementById("kissContainer");
       const kissScroll = document.getElementById("kissScroll");
 
-      // Keep scroll empty initially
-      let currentKissIndex = 0;
+      // Populate kiss scroll
+      const kissHTML = kisses
+        .map(
+          (kiss) => `
+            <div class="kiss-item">
+                <span class="kiss-emoji">${kiss.emoji}</span>
+                <div class="kiss-title">${kiss.title}</div>
+                <div class="kiss-description">${kiss.desc}</div>
+            </div>
+        `,
+        )
+        .join("");
 
-      function addNextKiss() {
-        if (currentKissIndex < kisses.length) {
-          const kiss = kisses[currentKissIndex];
-          const kissItem = document.createElement("div");
-          kissItem.className = "kiss-item";
-          kissItem.innerHTML = `
-            <span class="kiss-emoji">${kiss.emoji}</span>
-            <div class="kiss-title">${kiss.title}</div>
-            <div class="kiss-description">${kiss.desc}</div>
-          `;
+      // Just one set of kisses - user can scroll manually
+      kissScroll.innerHTML = kissHTML + kissHTML;
 
-          // Add from bottom
-          kissItem.style.transform = "translateY(100vh)";
-          kissItem.style.opacity = "0";
-          kissScroll.appendChild(kissItem);
+      // TRUE FLOWING AUTO SCROLL
+      let scrollPosition = 0;
+      const FLOW_SPEED = 100; // increase to 600+ if you want faster
 
-          // Animate in from bottom
-          setTimeout(() => {
-            kissItem.style.transition = "all 0.8s ease-out";
-            kissItem.style.transform = "translateY(0)";
-            kissItem.style.opacity = "1";
-          }, 50);
+      let lastTime = performance.now();
 
-          currentKissIndex++;
+      function flowScroll(currentTime) {
+        const deltaTime = (currentTime - lastTime) / 1000;
+        lastTime = currentTime;
+
+        scrollPosition += FLOW_SPEED * deltaTime;
+
+        if (scrollPosition >= kissScroll.scrollHeight / 2) {
+          scrollPosition = 0;
         }
+
+        kissScroll.style.transform = `translateY(-${scrollPosition}px)`;
+
+        requestAnimationFrame(flowScroll);
       }
 
       // Opening screen interaction
@@ -549,29 +581,23 @@
           }, 800);
           openingStep = 1;
         } else if (openingStep === 1) {
-          // Transition to kiss scroll (empty at first)
+          // Transition to kiss scroll
           openingScreen.classList.add("fade-out");
           setTimeout(() => {
             openingScreen.style.display = "none";
             kissContainer.classList.add("visible");
+            flowScroll(performance.now()); // Start auto-scrolling
           }, 1000);
           openingStep = 2;
         }
       });
 
-      // Tap anywhere on kiss container to add next kiss from bottom
+      // Tap anywhere on kiss container to show final message
       let finalMessageShown = false;
       kissContainer.addEventListener("click", () => {
         if (!finalMessageShown) {
-          if (currentKissIndex < kisses.length) {
-            addNextKiss();
-            // Scroll to bottom to show new kiss
-            kissContainer.scrollTop = kissContainer.scrollHeight;
-          } else {
-            // All kisses shown, show final message
-            showFinalMessage();
-            finalMessageShown = true;
-          }
+          showFinalMessage();
+          finalMessageShown = true;
         }
       });
 
