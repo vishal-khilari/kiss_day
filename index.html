@@ -248,10 +248,12 @@
         opacity: 0;
         pointer-events: none;
         transition: opacity 1.5s ease-in-out;
+        cursor: pointer;
       }
 
       .final-message.visible {
         opacity: 1;
+        pointer-events: auto;
       }
 
       .final-line {
@@ -293,6 +295,18 @@
         }
       }
 
+      .continue-hint {
+        font-size: 0.9rem;
+        color: rgba(252, 239, 255, 0.5);
+        margin-top: 30px;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+      }
+
+      .continue-hint.visible {
+        opacity: 0.6;
+      }
+
       /* Mobile responsive */
       @media (max-width: 480px) {
         .kiss-item {
@@ -328,7 +342,7 @@
         <div class="opening-line" id="line2" style="display: none">
           I don't think I'd stop at just one kiss.
         </div>
-        <div class="tap-hint">tap anywhere</div>
+        <div class="tap-hint">(Click)</div>
       </div>
     </div>
 
@@ -346,7 +360,7 @@
         I'd still want one more.
       </div>
       <div class="final-line" id="finalLine3" style="display: none">
-        Happy Kiss Day ❤️
+        Kisses for you!! 😘😘
       </div>
       <div class="final-heart" id="finalHeart" style="display: none">❤️</div>
     </div>
@@ -414,11 +428,6 @@
           title: "Grateful Kiss",
           desc: "For being exactly who you are.",
         },
-        {
-          emoji: "☕",
-          title: "Coffee Kiss",
-          desc: "Sweet before the first sip.",
-        },
         { emoji: "🌺", title: "Soft Kiss", desc: "When words aren't enough." },
         {
           emoji: "💭",
@@ -439,7 +448,6 @@
         { emoji: "☁️", title: "Cloud Kiss", desc: "Soft and endless." },
         { emoji: "✨", title: "Magic Kiss", desc: "That changes everything." },
         { emoji: "🎀", title: "Sweet Kiss", desc: "Just because I want to." },
-        { emoji: "🌹", title: "Rose Kiss", desc: "Romantic and intentional." },
         {
           emoji: "💫",
           title: "Stolen Kiss",
@@ -453,7 +461,6 @@
         { emoji: "🌈", title: "Happy Kiss", desc: "When you smile like that." },
         { emoji: "🔮", title: "Future Kiss", desc: "For all the tomorrows." },
         { emoji: "🎭", title: "Playful Kiss", desc: "When we're being silly." },
-        { emoji: "🎯", title: "Intentional Kiss", desc: "Meant for only you." },
         { emoji: "🏠", title: "Home Kiss", desc: "Because you're my place." },
         {
           emoji: "⏰",
@@ -576,12 +583,15 @@
       });
 
       // Final message sequence
+      let canRedirect = false;
+
       function showFinalMessage() {
         const finalMessage = document.getElementById("finalMessage");
         const finalLine1 = document.getElementById("finalLine1");
         const finalLine2 = document.getElementById("finalLine2");
         const finalLine3 = document.getElementById("finalLine3");
         const finalHeart = document.getElementById("finalHeart");
+        const continueHint = document.getElementById("continueHint");
 
         finalMessage.classList.add("visible");
 
@@ -609,9 +619,26 @@
 
         setTimeout(() => {
           finalHeart.style.display = "block";
-          setTimeout(() => finalHeart.classList.add("visible"), 100);
+          setTimeout(() => {
+            finalHeart.classList.add("visible");
+            // Show continue hint and enable redirect
+            setTimeout(() => {
+              continueHint.style.display = "block";
+              setTimeout(() => {
+                continueHint.classList.add("visible");
+                canRedirect = true;
+              }, 100);
+            }, 1500);
+          }, 100);
         }, 8500);
       }
+
+      // Add click listener to final message for redirect
+      document.getElementById("finalMessage").addEventListener("click", () => {
+        if (canRedirect) {
+          window.location.href = "https://formyloveprishu.vercel.app/";
+        }
+      });
     </script>
   </body>
 </html>
