@@ -149,6 +149,38 @@
         margin: 0 auto;
       }
 
+      .click-hint {
+        text-align: center;
+        padding: 40px 20px;
+        opacity: 1;
+        transition: opacity 0.6s ease-out;
+      }
+
+      .click-hint.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .click-hint-text {
+        font-family: "Dancing Script", cursive;
+        font-size: 2rem;
+        color: #ffd6e8;
+        text-shadow: 0 0 15px rgba(255, 214, 232, 0.4);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.6;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.05);
+        }
+      }
+
       .kiss-item {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
@@ -338,7 +370,10 @@
     <!-- Opening screen -->
     <div class="opening-screen" id="openingScreen">
       <div class="opening-text">
-        <div class="opening-line" id="line1">If you were here right now…</div>
+        <div class="opening-line" id="line0">I want to tell you something…</div>
+        <div class="opening-line" id="line1" style="display: none">
+          If you were here right now…
+        </div>
         <div class="opening-line" id="line2" style="display: none">
           I don't think I'd stop at just one kiss.
         </div>
@@ -349,6 +384,10 @@
     <!-- Main kiss scroll section -->
     <div class="kiss-container" id="kissContainer">
       <div class="kiss-scroll" id="kissScroll">
+        <!-- Click hint -->
+        <div class="click-hint" id="clickHint">
+          <div class="click-hint-text">Click</div>
+        </div>
         <!-- Kisses will be generated here -->
       </div>
     </div>
@@ -363,6 +402,7 @@
         Kisses for you!! 😘😘
       </div>
       <div class="final-heart" id="finalHeart" style="display: none">❤️</div>
+      <div class="continue-hint" id="continueHint" style="display: none"></div>
     </div>
 
     <script>
@@ -461,7 +501,6 @@
         { emoji: "🌈", title: "Happy Kiss", desc: "When you smile like that." },
         { emoji: "🔮", title: "Future Kiss", desc: "For all the tomorrows." },
         { emoji: "🎭", title: "Playful Kiss", desc: "When we're being silly." },
-        { emoji: "🏠", title: "Home Kiss", desc: "Because you're my place." },
         {
           emoji: "⏰",
           title: "Patient Kiss",
@@ -504,6 +543,7 @@
 
       // Get all DOM elements first
       const openingScreen = document.getElementById("openingScreen");
+      const line0 = document.getElementById("line0");
       const line1 = document.getElementById("line1");
       const line2 = document.getElementById("line2");
       const kissContainer = document.getElementById("kissContainer");
@@ -543,26 +583,35 @@
       let openingStep = 0;
 
       // Show first line
-      setTimeout(() => line1.classList.add("visible"), 300);
+      setTimeout(() => line0.classList.add("visible"), 300);
 
       openingScreen.addEventListener("click", () => {
         if (openingStep === 0) {
           // Show second line
+          line0.classList.remove("visible");
+          setTimeout(() => {
+            line0.style.display = "none";
+            line1.style.display = "block";
+            setTimeout(() => line1.classList.add("visible"), 100);
+          }, 800);
+          openingStep = 1;
+        } else if (openingStep === 1) {
+          // Show third line
           line1.classList.remove("visible");
           setTimeout(() => {
             line1.style.display = "none";
             line2.style.display = "block";
             setTimeout(() => line2.classList.add("visible"), 100);
           }, 800);
-          openingStep = 1;
-        } else if (openingStep === 1) {
+          openingStep = 2;
+        } else if (openingStep === 2) {
           // Transition to kiss scroll (empty at first)
           openingScreen.classList.add("fade-out");
           setTimeout(() => {
             openingScreen.style.display = "none";
             kissContainer.classList.add("visible");
           }, 1000);
-          openingStep = 2;
+          openingStep = 3;
         }
       });
 
@@ -571,6 +620,15 @@
       kissContainer.addEventListener("click", () => {
         if (!finalMessageShown) {
           if (currentKissIndex < kisses.length) {
+            // Hide the click hint on first click
+            if (currentKissIndex === 0) {
+              const clickHint = document.getElementById("clickHint");
+              clickHint.classList.add("fade-out");
+              setTimeout(() => {
+                clickHint.style.display = "none";
+              }, 600);
+            }
+
             addNextKiss();
             // Scroll to bottom to show new kiss
             kissContainer.scrollTop = kissContainer.scrollHeight;
